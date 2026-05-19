@@ -17,7 +17,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/your-repo/jmeter-project.git'
+                url: 'https://github.com/nirmaldangal/performance_jenkins.git'
             }
         }
 
