@@ -2,12 +2,11 @@ pipeline {
     agent any
 
     tools {
-        // Must match Jenkins → Manage Jenkins → Tools → JDK name
         jdk 'JDK17'
     }
 
     environment {
-        JMETER_HOME = "C:\\Users\\phyne\\Desktop\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3\\bin"
+        JMETER_HOME = "C:\\Users\\phyne\\Desktop\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3"
         REPORT_DIR = "report"
         TEST_FILE = "practice.jmx"
         RESULTS_FILE = "results.jtl"
@@ -31,14 +30,14 @@ pipeline {
 
         stage('Verify JMeter') {
             steps {
-                bat '"%JMETER_HOME%\\jmeter.bat" -v'
+                bat "\"%JMETER_HOME%\\bin\\jmeter.bat\" -v"
             }
         }
 
         stage('Run JMeter Test') {
             steps {
                 bat """
-                    "%JMETER_HOME%\\jmeter.bat" -n ^
+                    \"%JMETER_HOME%\\bin\\jmeter.bat\" -n ^
                     -t %TEST_FILE% ^
                     -l %RESULTS_FILE% ^
                     -e -o %REPORT_DIR%
@@ -48,7 +47,7 @@ pipeline {
 
         stage('Archive Reports') {
             steps {
-                archiveArtifacts artifacts: 'results.jtl, report/**', fingerprint: true
+                archiveArtifacts artifacts: 'results.jtl, report/**'
             }
         }
 
@@ -57,10 +56,9 @@ pipeline {
                 publishHTML([
                     reportDir: 'report',
                     reportFiles: 'index.html',
-                    reportName: 'JMeter HTML Report',
+                    reportName: 'JMeter Report',
                     keepAll: true,
-                    alwaysLinkToLastBuild: true,
-                    allowMissing: false
+                    alwaysLinkToLastBuild: true
                 ])
             }
         }
@@ -68,14 +66,13 @@ pipeline {
         stage('Send Email Report') {
             steps {
                 emailext(
-                    subject: "JMeter Test Report - Build #${env.BUILD_NUMBER}",
+                    subject: "JMeter Report - Build ${env.BUILD_NUMBER}",
                     body: """
-                        <h2>JMeter Test Completed</h2>
-                        <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
-                        <p><b>Status:</b> ${currentBuild.currentResult}</p>
-                        <p>Find attached HTML report.</p>
+                        <h2>JMeter Execution Completed</h2>
+                        <p>Build: ${env.BUILD_NUMBER}</p>
+                        <p>Status: ${currentBuild.currentResult}</p>
                     """,
-                    to: "your_email@gmail.com",
+                    to: "it.nirmaldangal@gmail.com",
                     attachmentsPattern: "report/**/index.html"
                 )
             }
@@ -83,16 +80,14 @@ pipeline {
     }
 
     post {
-        success {
-            echo "Pipeline Success"
-        }
-
-        failure {
-            echo "Pipeline Failed"
-        }
-
         always {
-            echo "JMeter Test Execution Completed"
+            echo "Pipeline finished"
+        }
+        success {
+            echo "SUCCESS"
+        }
+        failure {
+            echo "FAILED"
         }
     }
 }
