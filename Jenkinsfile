@@ -24,7 +24,7 @@ pipeline {
                 emailext (
                     subject: "JMeter Report - Build ${BUILD_NUMBER}",
                     body: "Check attached report from Jenkins build ${BUILD_NUMBER}",
-                    to: "your-email@gmail.com",
+                    to: "it.nirmaldangal@gmail.com",
                     attachmentsPattern: "report/**",
                     attachLog: true
                 )
