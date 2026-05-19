@@ -1,36 +1,40 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        JMETER = "C:\\Users\\phyne\\Desktop\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3\\bin\\jmeter.bat"
+    }
 
-        stage('Verify JMeter') {
-            steps {
-                bat '"C:\\Users\\phyne\\Desktop\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3\\bin\\jmeter.bat" -v'
-            }
-        }
+    stages {
 
         stage('Run JMeter Test') {
             steps {
-                bat '"C:\\Users\\phyne\\Desktop\\apache-jmeter-5.6.3\\apache-jmeter-5.6.3\\bin\\jmeter.bat" -n -t practice.jmx -l results.jtl -e -o report'
+                bat "${JMETER} -n -t practice.jmx -l results.jtl -e -o report"
             }
         }
 
-        stage('Archive Reports') {
+        stage('Archive Report') {
             steps {
-                archiveArtifacts artifacts: 'report/**', fingerprint: true
+                archiveArtifacts artifacts: 'report/**'
+            }
+        }
+
+        stage('Send Email Report') {
+            steps {
+                emailext (
+                    subject: "JMeter Report - Build ${BUILD_NUMBER}",
+                    body: "Check attached report from Jenkins build ${BUILD_NUMBER}",
+                    to: "your-email@gmail.com",
+                    attachmentsPattern: "report/**",
+                    attachLog: true
+                )
             }
         }
     }
 
     post {
         always {
-            echo 'JMeter Execution Completed'
-        }
-        success {
-            echo 'Test Passed'
-        }
-        failure {
-            echo 'Test Failed'
+            echo "Pipeline completed"
         }
     }
 }
