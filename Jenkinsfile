@@ -60,7 +60,6 @@ pipeline {
             keepAll: true,
             alwaysLinkToLastBuild: true,
             allowMissing: false,
-            includeLinks: true,
             escapeUnderscores: false
         ])
     }
